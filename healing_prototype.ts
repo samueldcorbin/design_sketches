@@ -114,7 +114,7 @@ const status_effect_color_to_string = new Map([
 
 
 // Add colors here to give players skills to heal them
-enum HealButtonColor {
+const enum HealButtonColor {
     Tricolor, // Leave this first since it needs special theming
     Red,
     Green,
@@ -144,10 +144,6 @@ const heal_button_heals_status_effect_color_map = new Map([
 function random_array_element(array: any[]): any { // Incompatible with sparse arrays
     const i = Math.floor(Math.random() * array.length);
     return array[i];
-}
-function set_to_array(my_set: Set<any>) {
-    return Array.from(my_set);
-
 }
 function heal_button_heals_status_effect_color(heal_button_color: HealButtonColor) {
     const heal_color = heal_button_heals_status_effect_color_map.get(heal_button_color);
@@ -229,7 +225,7 @@ class Entity {
     get status_effects() {
         let combined_status_effects: StatusEffect[] = [];
         for (let status_effect_color in this._status_effects) {
-            combined_status_effects = combined_status_effects.concat(set_to_array(this._status_effects[status_effect_color]));
+            combined_status_effects = combined_status_effects.concat(Array.from(this._status_effects[status_effect_color]));
         }
         return combined_status_effects;
     }
@@ -333,18 +329,18 @@ class Player extends Entity {
             if (target === this) {
                 alert("You can't heal yourself! (Stasis prevents healing)");
             } else {
-                alert("You can't heal that target! (Stasis, mismatched Team prevent healing)");
+                alert("You can't heal that target! (Stasis or mismatched Team prevent healing)");
             }
             return false;
         }
         return true;
     }
     private party_healable() {
-        let party = this.get_healable_party_members();
-        if (party.length < 1) {
-            alert("No one in your party is healable! (Stasis, mismatched Team prevent healing)");
+        let healable_party = this.get_healable_party_members();
+        if (healable_party.length < 1) {
+            alert("No one in your party is healable! (Stasis or mismatched Team prevent healing)");
         }
-        return party;
+        return healable_party;
     }
 
     private red_heal_target(target: Entity) {
@@ -397,7 +393,7 @@ class Player extends Entity {
             this.set_healing_cooldown(wrong_color_status_effect_cooldown);
             return;
         }
-        const status_effects = set_to_array(target._status_effects[heal_color]); // Get all the status effects of the heal's color on the player
+        const status_effects = Array.from(target._status_effects[heal_color]); // Get all the status effects of the heal's color on the player
         if (status_effects.length < 1) {
             // Target has no status effects of the heal's color
             this.set_healing_cooldown(wrong_color_status_effect_cooldown);
@@ -424,7 +420,7 @@ class Player extends Entity {
                 // If the set doesn't exist yet, there are no status effects of this color
                 continue;
             }
-            const status_effects = set_to_array(party_member._status_effects[heal_color]); // Get all the status effects of the heal's color on the player
+            const status_effects = Array.from(party_member._status_effects[heal_color]); // Get all the status effects of the heal's color on the player
             if (status_effects.length < 1) {
                 // Target has no status effects of the heal's color
                 continue;
